@@ -1,62 +1,96 @@
-import { useState, useEffect } from 'react'
-import './App.css'
-
-interface ApiResponse {
-  message: string
-  status: string
-  docs: string
-}
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Navbar } from './components/Navbar';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { CampaignsPage } from './pages/CampaignsPage';
+import { CampaignFormPage } from './pages/CampaignFormPage';
+import { CampaignDetailPage } from './pages/CampaignDetailPage';
+import { InfluencersPage } from './pages/InfluencersPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+import './App.css';
 
 function App() {
-  const [apiStatus, setApiStatus] = useState<ApiResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch('http://localhost:8000/')
-      .then(res => res.json())
-      .then(data => {
-        setApiStatus(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('API bağlantı hatası:', err)
-        setLoading(false)
-      })
-  }, [])
-
   return (
-    <div className="App">
-      <h1>🎯 Influencer ROI Hunter</h1>
-      <div className="card">
-        <h2>Backend Durum</h2>
-        {loading ? (
-          <p>Bağlantı kontrol ediliyor...</p>
-        ) : apiStatus ? (
-          <div>
-            <p style={{ color: 'green' }}>✅ {apiStatus.message}</p>
-            <p>Durum: <strong>{apiStatus.status}</strong></p>
-            <a 
-              href="http://localhost:8000/docs" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="api-link"
-            >
-              📚 API Dokümantasyonu
-            </a>
-          </div>
-        ) : (
-          <p style={{ color: 'red' }}>❌ Backend bağlantısı kurulamadı</p>
-        )}
+    <BrowserRouter>
+      <div style={styles.app}>
+        <Navbar />
+        <main style={styles.main}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/campaigns"
+              element={
+                <ProtectedRoute>
+                  <CampaignsPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/campaigns/new"
+              element={
+                <ProtectedRoute>
+                  <CampaignFormPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/campaigns/:id"
+              element={
+                <ProtectedRoute>
+                  <CampaignDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/influencers"
+              element={
+                <ProtectedRoute>
+                  <InfluencersPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </main>
       </div>
-      <div className="card">
-        <h3>YouTube Influencer Analizi</h3>
-        <p>YouTube API ile influencer analizi yapabilirsiniz</p>
-        <button onClick={() => alert('Yakında aktif olacak!')}>
-          Analiz Başlat
-        </button>
-      </div>
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+const styles = {
+  app: {
+    minHeight: '100vh',
+    background: '#f5f7fa',
+  },
+  main: {
+    minHeight: 'calc(100vh - 70px)',
+  },
+};
+
+export default App;
