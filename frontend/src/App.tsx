@@ -9,6 +9,10 @@ import { CampaignFormPage } from './pages/CampaignFormPage';
 import { CampaignDetailPage } from './pages/CampaignDetailPage';
 import { InfluencersPage } from './pages/InfluencersPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { BrandProfilesPage } from './pages/BrandProfilesPage';
+import { BrandProfileFormPage } from './pages/BrandProfileFormPage';
+import { InfluencerDiscoveryPage } from './pages/InfluencerDiscoveryPage';
+
 import './App.css';
 
 function App() {
@@ -76,6 +80,32 @@ function App() {
             />
             
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/brands"
+              element={
+                <ProtectedRoute>
+                  <BrandProfilesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/brands/new"
+              element={
+                <ProtectedRoute>
+                  <BrandProfileFormPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/brands/:brandId/discover"
+              element={
+                <ProtectedRoute>
+                  <InfluencerDiscoveryPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
       </div>
@@ -92,5 +122,8 @@ const styles = {
     minHeight: 'calc(100vh - 70px)',
   },
 };
+
+
+
 
 export default App;

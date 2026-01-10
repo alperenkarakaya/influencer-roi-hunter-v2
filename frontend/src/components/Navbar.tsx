@@ -24,6 +24,7 @@ export const Navbar = () => {
               <Link to="/influencers" style={styles.link}>Influencers</Link>
               <Link to="/campaigns" style={styles.link}>Campaigns</Link>
               <Link to="/analytics" style={styles.link}>Analytics</Link>
+              <Link to="/brands" style={styles.link}>🎯 Brand Discovery</Link>
               
               <div style={styles.userSection}>
                 <span style={styles.username}>👤 {user?.username}</span>
