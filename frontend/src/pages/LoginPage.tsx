@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 export const LoginPage = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, isLoading } = useAuthStore();
@@ -14,7 +14,7 @@ export const LoginPage = () => {
     setError('');
 
     try {
-      await login(username, password);
+      await login(email, password);
       navigate('/dashboard');
     } catch (err:  any) {
       setError(err.response?.data?.detail || 'Login failed');
@@ -31,13 +31,13 @@ export const LoginPage = () => {
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.formGroup}>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               style={styles.input}
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               required
             />
           </div>

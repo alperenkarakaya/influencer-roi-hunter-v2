@@ -8,7 +8,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   register: (email:  string, username: string, password:  string) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
@@ -20,10 +20,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: !! localStorage.getItem('access_token'),
   isLoading: false,
   
-  login: async (username, password) => {
+  login: async (email, password) => {
     set({ isLoading: true });
     try {
-      const data = await authAPI.login(username, password);
+      const data = await authAPI.login(email, password);
       localStorage.setItem('access_token', data.access_token);
       
       const user = await authAPI.getMe();
@@ -34,8 +34,10 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false
       });
-    } catch (error) {
+    } catch (error: any) {
       set({ isLoading: false });
+      console.error('Login error:', error);
+      console.error('Error response:', error.response?.data);
       throw error;
     }
   },

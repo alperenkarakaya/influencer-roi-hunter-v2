@@ -12,6 +12,11 @@ export const InfluencerDiscoveryPage = () => {
   const [includeMicro, setIncludeMicro] = useState(true);
   const [includeMacro, setIncludeMacro] = useState(true);
   const [includeMega, setIncludeMega] = useState(false);
+  const [minSubscribers, setMinSubscribers] = useState<number>(10000);
+  const [maxSubscribers, setMaxSubscribers] = useState<number>(1000000);
+  const [minEngagementRate, setMinEngagementRate] = useState<number | undefined>(undefined);
+  const [minViewRatio, setMinViewRatio] = useState<number | undefined>(undefined);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [discovering, setDiscovering] = useState(false);
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [error, setError] = useState('');
@@ -44,9 +49,13 @@ export const InfluencerDiscoveryPage = () => {
         brand_profile_id: parseInt(brandId),
         search_query: searchQuery || undefined,
         max_results: maxResults,
-        include_micro:  includeMicro,
+        include_micro: includeMicro,
         include_macro: includeMacro,
         include_mega: includeMega,
+        min_subscribers: minSubscribers,
+        max_subscribers: maxSubscribers,
+        min_engagement_rate: minEngagementRate,
+        min_view_ratio: minViewRatio,
       });
       setResult(data);
     } catch (err:  any) {
@@ -114,7 +123,7 @@ export const InfluencerDiscoveryPage = () => {
           </small>
         </div>
 
-        <div style={styles. field}>
+        <div style={styles.field}>
           <label style={styles.label}>Max Results</label>
           <input
             type="number"
@@ -129,6 +138,76 @@ export const InfluencerDiscoveryPage = () => {
             disabled={discovering}
           />
         </div>
+
+        <div style={styles.advancedToggle}>
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            style={styles.toggleButton}
+          >
+            {showAdvanced ? '▼' : '▶'} Advanced Filters
+          </button>
+        </div>
+
+        {showAdvanced && (
+          <div style={styles.advancedSection}>
+            <h3 style={styles.advancedTitle}>📊 Custom Metrics</h3>
+            
+            <div style={styles.row}>
+              <div style={styles.field}>
+                <label style={styles.label}>Min Subscribers</label>
+                <input
+                  type="number"
+                  value={minSubscribers}
+                  onChange={(e) => setMinSubscribers(parseInt(e.target.value) || 0)}
+                  style={styles.input}
+                  placeholder="e.g., 10000"
+                  disabled={discovering}
+                />
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Max Subscribers</label>
+                <input
+                  type="number"
+                  value={maxSubscribers}
+                  onChange={(e) => setMaxSubscribers(parseInt(e.target.value) || 0)}
+                  style={styles.input}
+                  placeholder="e.g., 1000000"
+                  disabled={discovering}
+                />
+              </div>
+            </div>
+
+            <div style={styles.row}>
+              <div style={styles.field}>
+                <label style={styles.label}>Min Engagement Rate (%) - Optional</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={minEngagementRate ?? ''}
+                  onChange={(e) => setMinEngagementRate(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  style={styles.input}
+                  placeholder="e.g., 2.0"
+                  disabled={discovering}
+                />
+                <small style={styles.hint}>Leave empty for no filter</small>
+              </div>
+              <div style={styles.field}>
+                <label style={styles.label}>Min View/Sub Ratio (%) - Optional</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={minViewRatio ?? ''}
+                  onChange={(e) => setMinViewRatio(e.target.value ? parseFloat(e.target.value) : undefined)}
+                  style={styles.input}
+                  placeholder="e.g., 3.0"
+                  disabled={discovering}
+                />
+                <small style={styles.hint}>Higher = better video performance</small>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={styles.checkboxGroup}>
           <label style={styles.checkboxLabel}>
@@ -183,7 +262,26 @@ export const InfluencerDiscoveryPage = () => {
 
       {result && (
         <>
-          <div style={styles. resultsHeader}>
+          {result.recommended_influencers.length === 0 ? (
+            <div style={styles.noResults}>
+              <h2 style={styles.noResultsTitle}>🔍 No Influencers Found</h2>
+              <p style={styles.noResultsText}>
+                We couldn't find any influencers matching your criteria. Here are some suggestions:
+              </p>
+              <ul style={styles.suggestionsList}>
+                <li>✅ Try increasing the follower range (e.g., 5K - 500K instead of 50K - 100K)</li>
+                <li>✅ Include more categories (Micro, Macro, Mega)</li>
+                <li>✅ Use broader search terms (e.g., "tech" instead of "gaming laptop review")</li>
+                <li>✅ Try popular categories: "lifestyle", "tech", "gaming", "beauty", "fitness"</li>
+                <li>✅ Leave search query empty to use your brand's preferred categories</li>
+              </ul>
+              <button onClick={handleDiscover} style={styles.retryButton}>
+                🔄 Try Again
+              </button>
+            </div>
+          ) : (
+            <>
+              <div style={styles.resultsHeader}>
             <h2 style={styles.resultsTitle}>📊 Discovery Results</h2>
             <div style={styles.stats}>
               <div style={styles.statItem}>
@@ -387,6 +485,8 @@ export const InfluencerDiscoveryPage = () => {
               </div>
             ))}
           </div>
+            </>
+          )}
         </>
       )}
     </div>
@@ -744,5 +844,71 @@ const styles = {
   },
   summaryText: {
     margin: '0.5rem 0 0 0',
+  },
+  noResults: {
+    background: 'white',
+    padding: '3rem',
+    borderRadius: '15px',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    textAlign: 'center' as const,
+    marginBottom: '2rem',
+  },
+  noResultsTitle: {
+    margin: '0 0 1rem 0',
+    fontSize: '1.75rem',
+    color: '#333',
+  },
+  noResultsText: {
+    margin: '0 0 1.5rem 0',
+    fontSize: '1.1rem',
+    color: '#666',
+  },
+  suggestionsList: {
+    textAlign: 'left' as const,
+    maxWidth: '600px',
+    margin: '0 auto 2rem auto',
+    listStyle: 'none',
+    padding: 0,
+  },
+  retryButton: {
+    padding: '1rem 2rem',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+  },
+  advancedToggle: {
+    marginBottom: '1rem',
+  },
+  toggleButton: {
+    padding: '0.5rem 1rem',
+    background: '#f0f0f0',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    color: '#555',
+  },
+  advancedSection: {
+    background: '#f9f9f9',
+    padding: '1.5rem',
+    borderRadius: '10px',
+    marginBottom: '1.5rem',
+    border: '1px solid #e0e0e0',
+  },
+  advancedTitle: {
+    margin: '0 0 1rem 0',
+    fontSize: '1rem',
+    color: '#333',
+  },
+  row: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+    marginBottom: '1rem',
   },
 };
